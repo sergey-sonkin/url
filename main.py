@@ -11,6 +11,8 @@ templates = Jinja2Templates(directory="templates")
 
 url_database: Dict[str, str] = {}
 
+USABLE_CHARACTERS = string.ascii_letters + string.digits
+
 
 class URLRequest(BaseModel):
     url: HttpUrl
@@ -22,8 +24,7 @@ class URLResponse(BaseModel):
 
 
 def generate_short_code(length: int = 6) -> str:
-    characters = string.ascii_letters + string.digits
-    return "".join(random.choice(characters) for _ in range(length))
+    return "".join(random.choices(population=USABLE_CHARACTERS, k=length))
 
 
 @app.post("/shorten", response_model=URLResponse)
@@ -54,6 +55,7 @@ async def redirect_to_url(short_code: str):
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
 
 @app.get("/api")
 async def api_root():
